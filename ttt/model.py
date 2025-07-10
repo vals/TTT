@@ -112,6 +112,11 @@ class CrossAttentionBlock(nn.Module):
 
 
 class PairSetTransformer(nn.Module):
+    # Normalization parameters computed from representative sample (50,000 pairs)
+    # These match the training data distribution: n1_range=(2,10), n2_range=(2,10)
+    TARGET_MEAN = -0.00166412
+    TARGET_STD = 1.43058395
+    
     def __init__(self, dim_input, d_model=128, n_heads=8, num_self_layers=3, 
                  num_cross_layers=3, dropout=0.1):
         super().__init__()
@@ -253,10 +258,13 @@ class PairSetTransformer(nn.Module):
         
         # Make prediction
         with torch.no_grad():
-            prediction = self.forward(x_padded, y_padded, x_mask, y_mask)
+            normalized_prediction = self.forward(x_padded, y_padded, x_mask, y_mask)
         
-        # Return single float value
-        return prediction.item()
+        # Denormalize prediction to actual t-statistic
+        actual_t_statistic = normalized_prediction.item() * self.TARGET_STD + self.TARGET_MEAN
+        
+        # Return denormalized t-statistic
+        return actual_t_statistic
     
     def save_model(self, filepath):
         """
