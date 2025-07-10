@@ -4,8 +4,12 @@ A PyTorch-based Python package that provides a pretrained neural network for com
 
 ## Installation
 
+This package can be installed from source by cloning the repository:
+
 ```bash
-pip install ttt
+git clone https://github.com/vals/ttt.git
+cd ttt
+pip install -e .
 ```
 
 **Dependencies:** PyTorch (>=1.10), numpy, scipy
